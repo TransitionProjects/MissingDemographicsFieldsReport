@@ -165,8 +165,8 @@ def create_ra_dq_report(raw_staff, raw_data):
     ]
     provider_dict = {
         "Transition Projects (TPI) - Clark Center - SP(25)": "CC",
-        "ZZ - Transition Projects (TPI) - Columbia Shelter (Do not use after 4/25/18) (Level 6) (#5857) ": "COL",
-        "Transition Projects (TPI) - Columbia Shelter (6527)": "COL",
+        "ZZ - Transition Projects (TPI) - Columbia Shelter (Do not use after 4/25/18) (Level 6)(5857) ": "COL",
+        "Transition Projects (TPI) - Columbia Shelter(6527)": "COL",
         "Transition Projects (TPI) - Doreen's Place - SP(28)": "DP",
         "Transition Projects (TPI) - Hansen Emergency Shelter - SP(5588)": "H",
         "Transition Projects (TPI) - Jean's Place L1 - SP(29)": "JP",
