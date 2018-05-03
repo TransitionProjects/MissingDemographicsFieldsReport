@@ -94,7 +94,7 @@ def create_cm_dq_report(raw_staff, raw_data):
     staff_summary = pd.pivot_table(
         data,
         index=["Dept", "Name"],
-        values=["CTID", "Errors", "Participants with Errors", "Required Fields"],
+        values=["CTID", "Required Fields", "Participants with Errors", "Errors"],
         aggfunc={
             "CTID": len,
             "Errors": np.sum,
@@ -102,11 +102,14 @@ def create_cm_dq_report(raw_staff, raw_data):
             "Required Fields": np.sum
         }
     )
+    staff_summary["Error Rate"] = staff_summary["Participants with Errors"]/staff_summary["CTID"]
+    staff_summary["Errors Per Participants"] = staff_summary["Errors"]/staff_summary["CTID"]
+    staff_summary["Error Rate Per Required Field"] = staff_summary["Errors"]/staff_summary["Required Fields"]
 
     dept_summary = pd.pivot_table(
         data,
         index=["Dept"],
-        values=["CTID", "Errors", "Participants with Errors", "Required Fields"],
+        values=["CTID", "Required Fields", "Participants with Errors", "Errors"],
         aggfunc={
             "CTID": len,
             "Errors": np.sum,
@@ -114,10 +117,13 @@ def create_cm_dq_report(raw_staff, raw_data):
             "Required Fields": np.sum
         }
     )
+    dept_summary["Error Rate"] = dept_summary["Participants with Errors"]/dept_summary["CTID"]
+    dept_summary["Errors Per Participants"] = dept_summary["Errors"]/dept_summary["CTID"]
+    dept_summary["Error Rate Per Required Field"] = dept_summary["Errors"]/dept_summary["Required Fields"]
 
     writer = pd.ExcelWriter(asksaveasfilename(title="Save the CM Report"), engine="xlsxwriter")
-    staff_summary.to_excel(writer, sheet_name="Staff Summary")
     dept_summary.to_excel(writer, sheet_name="Dept Summary")
+    staff_summary.to_excel(writer, sheet_name="Staff Summary")
     outreach.to_excel(writer, sheet_name="OUT", index=False)
     res.to_excel(writer, sheet_name="RES", index=False)
     ret.to_excel(writer, sheet_name="RET", index=False)
@@ -247,7 +253,7 @@ def create_ra_dq_report(raw_staff, raw_data):
     staff_summary = pd.pivot_table(
         dq_named,
         index=["Shelter", "CM"],
-        values=["CTID", "Errors", "Participants with Errors", "Required Fields"],
+        values=["CTID", "Required Fields", "Participants with Errors", "Errors"],
         aggfunc={
             "CTID": len,
             "Errors": np.sum,
@@ -255,11 +261,14 @@ def create_ra_dq_report(raw_staff, raw_data):
             "Required Fields": np.sum
         }
     )
+    staff_summary["Error Rate"] = staff_summary["Participants with Errors"]/staff_summary["CTID"]
+    staff_summary["Errors Per Participants"] = staff_summary["Errors"]/staff_summary["CTID"]
+    staff_summary["Error Rate Per Required Field"] = staff_summary["Errors"]/staff_summary["Required Fields"]
 
     dept_summary = pd.pivot_table(
         dq_named,
         index=["Shelter"],
-        values=["CTID", "Errors", "Participants with Errors", "Required Fields"],
+        values=["CTID", "Required Fields", "Participants with Errors", "Errors"],
         aggfunc={
             "CTID": len,
             "Errors": np.sum,
@@ -267,10 +276,13 @@ def create_ra_dq_report(raw_staff, raw_data):
             "Required Fields": np.sum
         }
     )
+    dept_summary["Error Rate"] = dept_summary["Participants with Errors"]/dept_summary["CTID"]
+    dept_summary["Errors Per Participants"] = dept_summary["Errors"]/dept_summary["CTID"]
+    dept_summary["Error Rate Per Required Field"] = dept_summary["Errors"]/dept_summary["Required Fields"]
 
     writer = pd.ExcelWriter(asksaveasfilename(title="Save the Shelter Report"), engine="xlsxwriter")
-    staff_summary.to_excel(writer, sheet_name="Staff Summary")
     dept_summary.to_excel(writer, sheet_name="Dept Summary")
+    staff_summary.to_excel(writer, sheet_name="Staff Summary")
     fifth.to_excel(writer, sheet_name="5th", index=False)
     cc.to_excel(writer, sheet_name="CC", index=False)
     col.to_excel(writer, sheet_name="COL", index=False)
