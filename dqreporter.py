@@ -91,15 +91,33 @@ def create_cm_dq_report(raw_staff, raw_data):
     ], axis=1)
     data = dq_named[~(dq_named["Name"] == "DEL")]
 
-    summary = pd.pivot_table(
+    staff_summary = pd.pivot_table(
         data,
-        values=["CTID", "Errors", "Participants with Errors"],
-        index=["Shelter", "CM"],
-        aggfunc=[len, np.sum, np.sum]
+        index=["Dept", "Name"],
+        values=["CTID", "Errors", "Participants with Errors", "Required Fields"],
+        aggfunc={
+            "CTID": len,
+            "Errors": np.sum,
+            "Participants with Errors": np.sum,
+            "Required Fields": np.sum
+        }
     )
 
-    writer = pd.ExcelWriter(asksaveasfilename(), engine="xlsxwriter")
-    summary.to_excel(writer, sheet_name="Summary", index=False)
+    dept_summary = pd.pivot_table(
+        data,
+        index=["Dept"],
+        values=["CTID", "Errors", "Participants with Errors", "Required Fields"],
+        aggfunc={
+            "CTID": len,
+            "Errors": np.sum,
+            "Participants with Errors": np.sum,
+            "Required Fields": np.sum
+        }
+    )
+
+    writer = pd.ExcelWriter(asksaveasfilename(title="Save the CM Report"), engine="xlsxwriter")
+    staff_summary.to_excel(writer, sheet_name="Staff Summary")
+    dept_summary.to_excel(writer, sheet_name="Dept Summary")
     outreach.to_excel(writer, sheet_name="OUT", index=False)
     res.to_excel(writer, sheet_name="RES", index=False)
     ret.to_excel(writer, sheet_name="RET", index=False)
@@ -226,15 +244,33 @@ def create_ra_dq_report(raw_staff, raw_data):
         "Required Fields"
     ], axis=1)
 
-    summary = pd.pivot_table(
+    staff_summary = pd.pivot_table(
         dq_named,
-        values=["CTID", "Errors", "Participants with Errors"],
         index=["Shelter", "CM"],
-        aggfunc=[len, np.sum, np.sum]
+        values=["CTID", "Errors", "Participants with Errors", "Required Fields"],
+        aggfunc={
+            "CTID": len,
+            "Errors": np.sum,
+            "Participants with Errors": np.sum,
+            "Required Fields": np.sum
+        }
     )
 
-    writer = pd.ExcelWriter(asksaveasfilename(), engine="xlsxwriter")
-    summary.to_excel(writer, sheet_name="Summary", index=False)
+    dept_summary = pd.pivot_table(
+        dq_named,
+        index=["Shelter"],
+        values=["CTID", "Errors", "Participants with Errors", "Required Fields"],
+        aggfunc={
+            "CTID": len,
+            "Errors": np.sum,
+            "Participants with Errors": np.sum,
+            "Required Fields": np.sum
+        }
+    )
+
+    writer = pd.ExcelWriter(asksaveasfilename(title="Save the Shelter Report"), engine="xlsxwriter")
+    staff_summary.to_excel(writer, sheet_name="Staff Summary")
+    dept_summary.to_excel(writer, sheet_name="Dept Summary")
     fifth.to_excel(writer, sheet_name="5th", index=False)
     cc.to_excel(writer, sheet_name="CC", index=False)
     col.to_excel(writer, sheet_name="COL", index=False)
