@@ -1,9 +1,10 @@
 import pandas as pd
+import numpy as np
 
 from tkinter.filedialog import askopenfilename
 from tkinter.filedialog import asksaveasfilename
 
-def create_cm_dq_report():
+def create_cm_dq_report(raw_staff, raw_data):
     # add a line dropping rows where department == Del
 
     countable_columns = [
@@ -45,12 +46,8 @@ def create_cm_dq_report():
         "Transition Projects (TPI) - SSVF_Renewal 15-ZZ-127 Rapid Re-Housing (VA) - SP(4802)": "SSVF"
     }
 
-    staff_file = pd.read_excel(askopenfilename(title="Open the staff names export from AD"), sheet_name="CM")
-    dq_file = pd.read_excel(
-        askopenfilename(title="Open the Demographics and DataQuality CM Report"),
-        header=3,
-        sheet_name="Report 1"
-    )
+    staff_file = pd.read_excel(raw_staff, sheet_name="CM")
+    dq_file = pd.read_excel(raw_data, header=3, sheet_name="Report 1")
 
     dq_named = dq_file.merge(staff_file, on="CM", how="left")
     dq_named["Required Fields"] = 0
@@ -94,15 +91,23 @@ def create_cm_dq_report():
     ], axis=1)
     data = dq_named[~(dq_named["Name"] == "DEL")]
 
+    summary = pd.pivot_table(
+        data,
+        values=["CTID", "Errors", "Participants with Errors"],
+        index=["Shelter", "CM"],
+        aggfunc=[len, np.sum, np.sum]
+    )
+
     writer = pd.ExcelWriter(asksaveasfilename(), engine="xlsxwriter")
-    data.to_excel(writer, sheet_name="Data Processed", index=False)
+    summary.to_excel(writer, sheet_name="Summary", index=False)
     outreach.to_excel(writer, sheet_name="OUT", index=False)
     res.to_excel(writer, sheet_name="RES", index=False)
     ret.to_excel(writer, sheet_name="RET", index=False)
     ssvf.to_excel(writer, sheet_name="SSVF", index=False)
+    data.to_excel(writer, sheet_name="Data Processed", index=False)
     writer.save()
 
-def create_ra_dq_report():
+def create_ra_dq_report(raw_staff, raw_data):
     # add a line dropping rows where department == Del
 
     countable_columns = [
@@ -147,9 +152,9 @@ def create_ra_dq_report():
         "Transition Projects (TPI) - 5th Avenue Shelter(6281)": "5th"
     }
 
-    staff_file = pd.read_excel(askopenfilename(title="Open the staff names export from AD"), sheet_name="RA")
+    staff_file = pd.read_excel(raw_staff, sheet_name="RA")
     dq_file = pd.read_excel(
-        askopenfilename(title="Open the Demographics and DataQuality RA Report"),
+        raw_data,
         header=3,
         sheet_name="Report 1"
     )
@@ -221,7 +226,15 @@ def create_ra_dq_report():
         "Required Fields"
     ], axis=1)
 
+    summary = pd.pivot_table(
+        dq_named,
+        values=["CTID", "Errors", "Participants with Errors"],
+        index=["Shelter", "CM"],
+        aggfunc=[len, np.sum, np.sum]
+    )
+
     writer = pd.ExcelWriter(asksaveasfilename(), engine="xlsxwriter")
+    summary.to_excel(writer, sheet_name="Summary", index=False)
     fifth.to_excel(writer, sheet_name="5th", index=False)
     cc.to_excel(writer, sheet_name="CC", index=False)
     col.to_excel(writer, sheet_name="COL", index=False)
@@ -235,5 +248,7 @@ def create_ra_dq_report():
 
 
 if __name__ == "__main__":
-    create_ra_dq_report()
-    create_cm_dq_report()
+    staff = askopenfilename(title="Open the staff names spreadsheet")
+    data = askopenfilename(title="Open the Demographics and DataQuality ART Report")
+    create_ra_dq_report(staff, data)
+    create_cm_dq_report(staff, data)
